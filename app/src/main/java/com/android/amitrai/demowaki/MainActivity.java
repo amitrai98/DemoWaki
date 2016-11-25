@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     EditText editText1, editText2;
-    Button button1;
+    Button btn_connect;
     SeekBar volume;
     TextView textView1;
     String ip;
@@ -65,6 +65,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        init();
     }
 
     @Override
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity
         // initialize layout variables
         editText1 = (EditText) findViewById(R.id.editText1);
         editText2 = (EditText) findViewById(R.id.editText2);
-        button1 = (Button) findViewById(R.id.button1);
+        btn_connect = (Button) findViewById(R.id.btn_connect);
         volume = (SeekBar) findViewById(R.id.volume);
         volume.setMax(100);
         volume.setProgress(100);
@@ -144,13 +146,13 @@ public class MainActivity extends AppCompatActivity
         ip = editText1.getText().toString();
         port = Integer.valueOf(editText2.getText().toString());
 
-        mss = new MediaStreamServer(MainActivity.this, port);
+//        mss = new MediaStreamServer(MainActivity.this, port);
 
-        button1.setOnClickListener(new View.OnClickListener() {
+        btn_connect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(button1.getText().toString().equals("Start")) {
-                    button1.setText("Stop");
+                if(btn_connect.getText().toString().equalsIgnoreCase("connect")) {
+                    btn_connect.setText("Stop");
 
                     if(ip.equals("127.0.0.1") || ip.equals("0.0.0.0")) {
                         textView1.append("Starting server\n");
@@ -161,8 +163,8 @@ public class MainActivity extends AppCompatActivity
                         msc = new MediaStreamClient(MainActivity.this, ip, port);
                     }
                 }
-                else if(button1.getText().toString().equals("Stop")) {
-                    button1.setText("Start");
+                else if(btn_connect.getText().toString().equals("Stop")) {
+                    btn_connect.setText("connect");
                     if(mss!=null) {
                         textView1.append("Stopping server\n");
                         mss.stop();
@@ -193,7 +195,7 @@ public class MainActivity extends AppCompatActivity
             public void onReceive(Context context, Intent intent) {
                 if(intent.getAction().equals("tw.rascov.MediaStreamer.ERROR")) {
                     textView1.append("Error: " + intent.getStringExtra("msg") + "\n");
-                    button1.setText("Start");
+                    btn_connect.setText("connect");
                 }
             }
         };

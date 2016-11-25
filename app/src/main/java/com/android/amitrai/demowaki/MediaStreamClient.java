@@ -14,12 +14,12 @@ public class MediaStreamClient {
     static final int audioEncoding = AudioFormat.ENCODING_PCM_16BIT;
     boolean isPlaying;
 	int playBufSize;
-    Socket connfd;
+    Socket socket;
 	AudioTrack audioTrack;
 	
 	public MediaStreamClient(final Context ctx, final String ip, final int port) {
-		if(ip.equalsIgnoreCase(MainActivity.MYIP))
-			return;
+//		if(ip.equalsIgnoreCase(MainActivity.MYIP))
+//			return;
 		playBufSize= AudioTrack.getMinBufferSize(frequency, channelConfiguration, audioEncoding);
 //		audioTrack = new AudioTrack(AudioManager.STREAM_VOICE_CALL, frequency, channelConfiguration, audioEncoding, playBufSize, AudioTrack.MODE_STREAM);
 		audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, frequency, channelConfiguration, audioEncoding, playBufSize, AudioTrack.MODE_STREAM);
@@ -28,7 +28,7 @@ public class MediaStreamClient {
 		new Thread() {
 			byte[] buffer = new byte[playBufSize];
 			public void run() {
-				try { connfd = new Socket(ip, port); }
+				try { socket = new Socket(ip, port); }
 				catch (Exception e) {
 					e.printStackTrace();
 					Intent intent = new Intent()
@@ -37,11 +37,13 @@ public class MediaStreamClient {
 					ctx.sendBroadcast(intent);
 					return;
 				}
+
+
 				audioTrack.play();
 				isPlaying = true;
 		        while (isPlaying) {
 		        	int readSize = 0;
-		            try { readSize = connfd.getInputStream().read(buffer); }
+		            try { readSize = socket.getInputStream().read(buffer); }
 		            catch (Exception e) {
 	            		e.printStackTrace();
 						Intent intent = new Intent()
@@ -53,7 +55,7 @@ public class MediaStreamClient {
 		        	audioTrack.write(buffer, 0, readSize);
 		        }  
 		        audioTrack.stop();
-				try { connfd.close(); }
+				try { socket.close(); }
 				catch (Exception e) { e.printStackTrace(); }
 			}
 		}.start();
